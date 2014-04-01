@@ -1,0 +1,22 @@
+#!/bin/bash
+# Prepare first boot.
+
+cat  > /etc/init.d/firstboot << EOF
+#!/bin/bash
+FILESTATUS=/etc/firstboot
+
+[ -f  $FILESTATUS ] && exit 0
+echo "Install container in Docker."
+cat /root/cloudy.container.tar.gz | docker import - cloudy
+
+echo "Install script into contanier."
+CONTAINER_ID=$(docker run -d -v /usr/share/docker:/mnt -t cloudy cp /mnt/start_cloudy.sh /sbin/)
+docker commit -m "Create start script in docker container" $CONTAINER_ID dccloudy
+docker run -d --privileged=true dcloudy /bin/bash /sbin/start_cloudy.sh
+
+
+touch $FILESTATUS
+exit 0
+EOF
+chmod +x /etc/init.d/firstboot
+update-rc.d firstboot defaults

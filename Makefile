@@ -58,6 +58,10 @@ add_packages: add_repos
 		echo $$pkgs > ${PKGDIR}/$$name.list.chroot; \
 	done < packages
 
+add_files: make_config
+	cp -a includes/chroot/* config/includes.chroot/
+	cp -a includes/binary/* config/includes.binary/
+
 hooks: add_packages
 	mkdir -p ${HOOKDIR}
 	cp hooks/* ${HOOKDIR}/

@@ -6,8 +6,6 @@ apt-get install -y -q lxc-docker
 # Impoort Conatiner
 # 
 # docker import http://repo.clommunity-project.eu/images/unstable/cloudy.container.tar.gz
-#
-
 
 # Forcer umount system!
 umount cgroup
@@ -20,7 +18,6 @@ umount cgroup
 umount cgroup
 umount cgroup
 
-# Falta configurar el bridge i "arreglar" l'arranc.
 
 exit 0
 
