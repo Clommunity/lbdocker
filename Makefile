@@ -58,11 +58,11 @@ add_packages: add_repos
 		echo $$pkgs > ${PKGDIR}/$$name.list.chroot; \
 	done < packages
 
-add_files: make_config
-	cp -a includes/chroot/* config/includes.chroot/
-	cp -a includes/binary/* config/includes.binary/
+add_files: add_packages
+	cp -af includes/chroot/* ${DESTDIR}/config/includes.chroot/
+	#cp -af includes/binary/* ${DESTDIR}/config/includes.binary/
 
-hooks: add_packages
+hooks: add_files
 	mkdir -p ${HOOKDIR}
 	cp hooks/* ${HOOKDIR}/
 
@@ -85,7 +85,8 @@ build: .build
 clean:
 	cd ${DESTDIR} && lb clean
 	# Remove packages...
-	@rm -f ${DESTDIR}/config/package-lists/*
+	@rm -rf ${DESTDIR}/config
+	@rm -rf ${DESTDIR}/auto
 	@rm -f .build
 
 .PHONY: all describe build_environment prepare_configure make_config add_repos add_packages hooks custom build clean

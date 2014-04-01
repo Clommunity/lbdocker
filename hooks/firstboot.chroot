@@ -4,18 +4,43 @@
 cat  > /etc/init.d/firstboot << EOF
 #!/bin/bash
 FILESTATUS=/etc/firstboot
+INTERFACES_FILE=/etc/network/interfaces
 
-[ -f  $FILESTATUS ] && exit 0
+[ -f  \$FILESTATUS ] && exit 0
+
+echo "Stop docker"
+service docker stop
+
+echo "Down eth0"
+/sbin/ifdown eth0
+
+echo "Write interfaces"
+echo "auto lo" > \$INTERFACES_FILE
+echo "iface lo inet loopback" >> \$INTERFACES_FILE
+echo "" >> \$INTERFACES_FILE
+echo "auto docker" >> \$INTERFACES_FILE 
+echo "iface docker inet dhcp" >> \$INTERFACES_FILE
+echo "   bridge_ports eth0" >> \$INTERFACES_FILE
+echo "   bridge_fd 0" >> \$INTERFACES_FILE
+
+echo "Up docker"
+/sbin/ifup docker
+
+echo "Start docker"
+service docker start
+
+sleep 10
+
 echo "Install container in Docker."
 cat /root/cloudy.container.tar.gz | docker import - cloudy
 
 echo "Install script into contanier."
-CONTAINER_ID=$(docker run -d -v /usr/share/docker:/mnt -t cloudy cp /mnt/start_cloudy.sh /sbin/)
-docker commit -m "Create start script in docker container" $CONTAINER_ID dccloudy
-docker run -d --privileged=true dcloudy /bin/bash /sbin/start_cloudy.sh
+CONTAINER_ID=\$(docker run -d -v /usr/share/docker:/mnt -t cloudy cp /mnt/start_cloudy.sh /sbin/)
+docker commit -m "Create start script in docker container" \$CONTAINER_ID dkcloudy
+docker run -d --privileged=true dkcloudy /bin/bash /sbin/start_cloudy.sh
 
 
-touch $FILESTATUS
+touch \$FILESTATUS
 exit 0
 EOF
 chmod +x /etc/init.d/firstboot

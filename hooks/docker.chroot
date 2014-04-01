@@ -19,5 +19,10 @@ umount cgroup
 umount cgroup
 
 
+# Fer canvis de fitxers:
+
+rm /etc/default/docker
+mv /etc/default/docker.changer /etc/default/docker
+
 exit 0
 

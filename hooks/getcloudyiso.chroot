@@ -1,5 +1,4 @@
 #!/bin/bash
 
-curl http://repo.clommunity-project.eu/images/unstable/cloudy.container.tar.gz > /root/cloudy.container.tar.gz
-
-
+#curl http://repo.clommunity-project.eu/images/unstable/cloudy.container.tar.gz > /root/cloudy.container.tar.gz
+curl http://10.139.40.16/images/unstable/cloudy.container.tar.gz > /root/cloudy.container.tar.gz
