@@ -2,45 +2,82 @@
 # Prepare first boot.
 
 cat  > /etc/init.d/firstboot << EOF
-#!/bin/bash
+#! /bin/sh
+#
+### BEGIN INIT INFO
+# Provides:          firstboot
+# Required-Start:    \$all 
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Start/Stop firstboot
+### END INIT INFO
+
+NAME=firstboot
 FILESTATUS=/etc/firstboot
 INTERFACES_FILE=/etc/network/interfaces
 
 [ -f  \$FILESTATUS ] && exit 0
 
-echo "Stop docker"
-service docker stop
+start() {
+	echo "Stop docker"
+	service docker stop
 
-echo "Down eth0"
-/sbin/ifdown eth0
+	echo "Down docker"
+	/sbin/ifdown docker
 
-echo "Write interfaces"
-echo "auto lo" > \$INTERFACES_FILE
-echo "iface lo inet loopback" >> \$INTERFACES_FILE
-echo "" >> \$INTERFACES_FILE
-echo "auto docker" >> \$INTERFACES_FILE 
-echo "iface docker inet dhcp" >> \$INTERFACES_FILE
-echo "   bridge_ports eth0" >> \$INTERFACES_FILE
-echo "   bridge_fd 0" >> \$INTERFACES_FILE
+	echo "Down eth0"
+	/sbin/ifdown eth0
 
-echo "Up docker"
-/sbin/ifup docker
+	echo "Backup interface file"
+	mv \$INTERFACES_FILE \$INTERFACES_FILE.backup
 
-echo "Start docker"
-service docker start
+	echo "Write interfaces"
+	echo "auto lo" > \$INTERFACES_FILE
+	echo "iface lo inet loopback" >> \$INTERFACES_FILE
+	echo "" >> \$INTERFACES_FILE
+	echo "auto docker" >> \$INTERFACES_FILE 
+	echo "iface docker inet dhcp" >> \$INTERFACES_FILE
+	echo "   bridge_ports eth0" >> \$INTERFACES_FILE
+	echo "   bridge_fd 0" >> \$INTERFACES_FILE
 
-sleep 10
+	echo "Up docker"
+	/sbin/ifup docker
 
-echo "Install container in Docker."
-cat /root/cloudy.container.tar.gz | docker import - cloudy
+	echo "Start docker"
+	service docker start
 
-echo "Install script into contanier."
-CONTAINER_ID=\$(docker run -d -v /usr/share/docker:/mnt -t cloudy cp /mnt/start_cloudy.sh /sbin/)
-docker commit -m "Create start script in docker container" \$CONTAINER_ID dkcloudy
-docker run -d --privileged=true dkcloudy /bin/bash /sbin/start_cloudy.sh
+	sleep 2
 
+	echo "Prepare container, add start_cloudy"
+	cd /root
+	gzip -d cloudy.container.tar.gz
+	tar rfv cloudy.container.tar /usr/share/docker/start_cloudy.sh
+	gzip cloudy.container.tar
 
-touch \$FILESTATUS
+	echo "Install container in Docker."
+	cat /root/cloudy.container.tar.gz | docker import - dkcloudy
+
+	echo "Install script into contanier."
+	docker run -d --privileged=true dkcloudy /bin/bash /usr/share/docker/start_cloudy.sh
+
+	touch \$FILESTATUS
+}
+
+case "\$1" in
+  start)
+    start
+  ;;
+  restart)
+    start
+  ;;
+  *)
+    echo "Usage: /etc/init.d/\$NAME {start|restart}"
+    exit 1
+  ;;
+esac
+
 exit 0
 EOF
 chmod +x /etc/init.d/firstboot

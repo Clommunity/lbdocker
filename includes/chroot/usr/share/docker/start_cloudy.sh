@@ -14,7 +14,6 @@ service cdistro start
 # Cron
 service cron start
 
-
 # service mysql start
 
 service tinc start
@@ -24,10 +23,14 @@ service dbus start
 service avahi-daemon start
 
 
-# SSh
-[ ! -f /etc/ssh/ssh_host_rsa_key ] && ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
-[ ! -f /etc/ssh/ssh_host_dsa_key ] && ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N ''
-
+# SSh restart 
+# Remove keys
+rm /etc/ssh/ssh_host_*
+# Generate new keys
+dpkg-reconfigure openssh-server
+ 
 getinconf-client install
+
+ip addr show eth0
 
 /usr/sbin/sshd -D
