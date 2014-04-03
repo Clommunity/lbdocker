@@ -24,10 +24,8 @@ service avahi-daemon start
 
 
 # SSh restart 
-# Remove keys
-rm /etc/ssh/ssh_host_*
 # Generate new keys
-dpkg-reconfigure openssh-server
+[ ! -f /etc/ssh/ssh_host_dsa_key ] && dpkg-reconfigure openssh-server
  
 getinconf-client install
 
