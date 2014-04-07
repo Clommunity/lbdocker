@@ -52,15 +52,16 @@ start() {
 
 	echo "Prepare container, add start_cloudy"
 	cd /root
-	gzip -d cloudy.container.tar.gz
-	tar rfv cloudy.container.tar /usr/share/docker/start_cloudy.sh
-	gzip cloudy.container.tar
+#	gzip -d cloudy.container.tar.gz
+#	tar rfv cloudy.container.tar /usr/share/docker/start_cloudy.sh
+#	gzip cloudy.container.tar
 
 	echo "Install container in Docker."
 	cat /root/cloudy.container.tar.gz | docker import - dkcloudy
 
 	echo "Install script into contanier."
-	docker run -d --privileged=true dkcloudy /bin/bash /usr/share/docker/start_cloudy.sh
+#	docker run -d --privileged=true dkcloudy /bin/bash /usr/share/docker/start_cloudy.sh
+	docker run -d --privileged=true dkcloudy /sbin/init 3
 
 	touch \$FILESTATUS
 }
