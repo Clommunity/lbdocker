@@ -50,11 +50,18 @@ start() {
 
 	sleep 2
 
-	echo "Prepare container, add start_cloudy"
+	echo "Prepare container"
+	echo "Please wait..."
 	cd /root
-#	gzip -d cloudy.container.tar.gz
-#	tar rfv cloudy.container.tar /usr/share/docker/start_cloudy.sh
-#	gzip cloudy.container.tar
+	mkdir cloudy
+	cd cloudy
+	echo "Untargzip..."
+	tar zxfv ../cloudy.container.tar.gz
+	cp /usr/share/docker/start_cloudy.sh usr/share/docker/start_cloudy.sh
+	cp /etc/rc.local.guest etc/rc.local
+	echo "Targzip..."
+	rm ../cloudy.container.tar.gz
+	tar zcvf ../cloudy.container.tar.gz *
 
 	echo "Install container in Docker."
 	cat /root/cloudy.container.tar.gz | docker import - dkcloudy
