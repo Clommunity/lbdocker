@@ -63,12 +63,13 @@ start() {
 	rm ../cloudy.container.tar.gz
 	tar zcvf ../cloudy.container.tar.gz *
 
-	echo "Install container in Docker."
+	echo "Install image cloudy(container) in Docker."
 	cat /root/cloudy.container.tar.gz | docker import - dkcloudy
 
-	echo "Install script into contanier."
-#	docker run -d --privileged=true dkcloudy /bin/bash /usr/share/docker/start_cloudy.sh
-	docker run -d --privileged=true dkcloudy /sbin/init 3
+	CHOSTNAME=clouder-$(date +%s | sha256sum | base64 | head -c 5)
+	echo "Run cloudy with name: $CHOSTNAME."
+#	docker run -d --privileged=true dkcloudy -h $CHOSTNAME /bin/bash /usr/share/docker/start_cloudy.sh
+	docker run -d --privileged=true dkcloudy -h $CHOSTNAME /sbin/init 3
 
 	touch \$FILESTATUS
 }
