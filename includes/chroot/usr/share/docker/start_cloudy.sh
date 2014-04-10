@@ -1,6 +1,11 @@
 #!/bin/bash
 # Start
 
+# Clean eth0 
+ifup eth0
+ifdown eth0
+ifup eth0
+
 mkdir -p /var/run/sshd
 
 # Apache :
