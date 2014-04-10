@@ -2,5 +2,5 @@ ssh:	openssh-server openssh-client
 curl:	curl
 mysql:	mysql-server
 locale:	locales 
-docker-utils:	bridge-utils
+docker-utils:	bridge-utils htop bwm-ng
 
